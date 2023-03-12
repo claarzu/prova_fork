@@ -307,9 +307,12 @@ void gestione_strada(int pipeAS[2], int pipeVAux[2], Area area){
                 perror("Errore fork veicolo");
                 _exit(-1);
             case 0:
-                //writeVPipe(area.a.veicoli[i], pipeVAux[WRITE]);          
+                //writeVPipe(area.a.veicoli[i], pipeVAux[WRITE]); 
+                close(pipeV[READ]); 
+                close(pipeVAux[WRITE]);        
                 sposta_veicolo(pipeVAux[READ], pipeV[WRITE], area.a.veicoli[i]);
-                _exit(0);
+                close(pipeV[WRITE]);
+                _exit(EXIT_SUCCESS);
         }
     }
     close(pipeV[WRITE]);

@@ -87,19 +87,22 @@ int main()
                     perror("Errore fork tronco");
                     _exit(-1);
                 case 0:
-                    //close(pipeA[READ]);
+                    close(pipeA[READ]);
                     if(i == 0){
                         gestione_strada(pipeA, pipeVAux, area);
                     }else if(i == 1){
                         //gestione_fiume(pipeA, area);  
                     }else{
                         // Rana
-                    }                    
+                    } 
+                    close(pipeA[WRITE]);
+                    close(pipeVAux[WRITE]);                   
                     _exit(0);
             }
         } 
-        //close(pipeA[WRITE]);
+        close(pipeA[WRITE]);
         aggiornaArea(game, fiume, autostrada, area, pipeA);
+        close(pipeA[READ]);
     }
 
     endwin();
