@@ -71,7 +71,7 @@ int main(){
             perror("Errore creazione pipe area");           
             _exit(-1);
         }
-        if (createPipe(pipeVAux, UNBLOCK_R) != 1){
+        if (createPipe(pipeVAux, UNBLOCK_RW) != 1){
             perror("Errore creazione pipe area");           
             _exit(-1);
         }

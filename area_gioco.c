@@ -174,10 +174,7 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
         
         cont = 0;
         //se tutti i veicoli sono stati caricati
-        if(check){  
-            aggiorna_autostrada(game, autostrada, t_Area); 
-            //wrefresh(game);
-
+        if(check){
             for (i = 0; i < N_VEICOLI; i++){                
                 if(check_corsia(t_Area.a.veicoli[i])){
                     cont++;
@@ -240,8 +237,6 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                     }
 
                 }
-                
-
             }
             
             //usleep(50000);
