@@ -140,6 +140,7 @@ _Bool check_id(int dim, int array[dim], int id){
 void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, int pipeVR, int pipeVAW)
 {
     Area t_Area = area;
+    Autostrada strada;
     int i, j, cont = 0, cont_v[N_VEICOLI], corsiaM[2][3], corsia = 0;
     _Bool check = false;
     Tronco t_aux;
@@ -162,8 +163,13 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
             if (!check_id(N_VEICOLI, cont_v, v.num_veicolo)){
                 for (j = 0; j < N_VEICOLI; j++){
                     if (v.num_veicolo == t_Area.a.veicoli[j].num_veicolo){
-                        cont_v[j] = v.num_veicolo;
-                        t_Area.a.veicoli[j] = v; 
+                        if(v.corsia == t_Area.a.veicoli[j].corsia){
+                            cont_v[j] = v.num_veicolo;
+                            t_Area.a.veicoli[j] = v; 
+                            
+                        } else{
+
+                        }
                         cont++;
                     }                                          
                 }
@@ -187,13 +193,30 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                 }              
             }
             
+            
             if (cont > 0){                
                 for (i = 0; i < N_CORSIE_FLUSSI; i++){
                     do{
-                        corsia = 1 + rand() % 3;
-                        corsiaM[1][i] = corsia;  
-                    }while(corsiaM[1][0] == corsiaM[1][1] || corsiaM[1][0] == corsiaM[1][2] || corsiaM[1][1] == corsiaM[1][2]);
+                        corsia = 1 + rand() % 3;  
+                    }while(corsiaM[1][0] == corsia || corsiaM[1][1] == corsia || corsiaM[1][2] == corsia);
+
+                    corsiaM[1][i] = corsia;
                 }
+
+
+                for (i = 0; i < N_CORSIE_FLUSSI; i++)
+                {
+                    attron(COLOR_PAIR(2));
+                    mvwprintw(game, 2, i+1, "%d", corsiaM[0][i]);
+                    mvwprintw(game, 3, i+1, "%d", corsiaM[1][i]);
+                    
+                    attroff(COLOR_PAIR(2));
+                }
+                attron(COLOR_PAIR(2));
+                mvwprintw(game, 4, 3, "%d", cont);
+                attroff(COLOR_PAIR(2));
+                
+                //wbkgd(autostrada, COLOR_PAIR(2));
 
                 if(cont == 1){
                     for (i = 0; i < N_VEICOLI; i++){  
@@ -237,23 +260,24 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                     }
 
                 }
+                // aggiorna_autostrada(game, autostrada, t_Area);
+                // wrefresh(game);
             }
             
             //usleep(50000);
             
 
-            aggiorna_autostrada(game, autostrada, t_Area);
-            //writeSPipe(t_Area.a, pipeVAW); 
+            /* aggiorna_autostrada(game, autostrada, t_Area);            
             wrefresh(game);
-            
+             */
         }
-        
+        strada = t_Area.a;
         //close(pipeArea[WRITE]);
         // usleep(100001);
-        //aggiorna_autostrada(game, autostrada, t_Area);        
+        aggiorna_autostrada(game, autostrada, t_Area);        
         //close(pipeArea[WRITE]);
         //aggiorna_fiume(game, fiume, t_Area, pipeArea);        
-        //wrefresh(game);
+        wrefresh(game);
     }
 }
 void aggiorna_fiume(WINDOW *game, WINDOW *fiume, Area a, int pipeTR[2])
