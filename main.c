@@ -66,12 +66,8 @@ int main(){
         stampa_veicoli(game, area.a);
         wrefresh(game);
 
-      
-        if (createPipe(pipeA, BLOCK) != 1){
-            perror("Errore creazione pipe area");
-            _exit(-1);
-        }
-         if (createPipe(pipeV, UNBLOCK_W) != 1){
+
+        if (createPipe(pipeV, UNBLOCK_W) != 1){
             perror("Errore creazione pipe area");           
             _exit(-1);
         }
@@ -85,13 +81,14 @@ int main(){
                     perror("Errore fork veicolo");
                     _exit(-1);
                 case 0:  
-                    close(pipeV[READ]);  
+                    close(pipeV[READ]); 
+                    close(pipeVAux[WRITE]); 
                     sposta_veicolo(pipeVAux[READ],  pipeV[WRITE], area.a.veicoli[i]);
                     _exit(EXIT_SUCCESS);   
             }
         }
         close(pipeV[WRITE]); 
-        
+        close(pipeVAux[READ]); 
         aggiornaArea(game, fiume, autostrada, area, pipeV[READ], pipeVAux[WRITE]);
             /* for (i = 0; i < N_CORSIE_FLUSSI; i++){
             switch (pidA[i] = fork()){
