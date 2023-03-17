@@ -163,13 +163,8 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
             if (!check_id(N_VEICOLI, cont_v, v.num_veicolo)){
                 for (j = 0; j < N_VEICOLI; j++){
                     if (v.num_veicolo == t_Area.a.veicoli[j].num_veicolo){
-                        if(v.corsia == t_Area.a.veicoli[j].corsia){
-                            cont_v[j] = v.num_veicolo;
-                            t_Area.a.veicoli[j] = v; 
-                            
-                        } else{
-
-                        }
+                        cont_v[j] = v.num_veicolo;
+                        t_Area.a.veicoli[j] = v;      
                         cont++;
                     }                                          
                 }
