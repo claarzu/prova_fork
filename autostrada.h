@@ -19,7 +19,6 @@
     int h; // Altezza veicolo
     int corsia;
     char tipo;
-    char **sprite;
     Verso vr;
 }Veicolo;
 
@@ -33,8 +32,7 @@ typedef struct {
 } Autostrada;
 
 Autostrada init_autostrada(WINDOW *autostrada);
-Veicolo sprite_veicolo(Veicolo v);
-Veicolo cambio_sprite(Veicolo v);
+
 void stampa_veicoli(WINDOW *game, Autostrada a);
 void stampa_veicolo(WINDOW *game, Veicolo v);
 Veicolo readVPipe(int p_in);

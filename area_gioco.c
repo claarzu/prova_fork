@@ -126,24 +126,40 @@ void gestione_area(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, i
     //_exit(EXIT_SUCCESS);
 }
 
-void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, int pipeArea[2])
+void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, int pipeVR, int pipeVAW)
 {
     Area t_Area = area;
-    int i, j;
+    int i, cont = 0;
     Tronco t_aux;
+    Veicolo v;
 
-    while (1)
-    {
-        t_Area = readAreaPipe(pipeArea[READ]);
+    while (1){
+        v = readVPipe(pipeVR);  
+        for (i = 0; i < N_VEICOLI; i++){
+            if (v.num_veicolo == t_Area.a.veicoli[i].num_veicolo){
+                t_Area.a.veicoli[i] = v; 
+                cont++;
+            }                                          
+        }
+        if(cont > 15){
+             for (i = 0; i < N_VEICOLI; i++){                
+                if(check_corsia(area.a.veicoli[i])){
+                    v = cambio_corsia(pipeVAW, area.a.veicoli[i], area); 
+                    area.a.veicoli[i] = v; 
+                }
+            }
+            
+            cont = 0;     
+        }
+        
         //close(pipeArea[WRITE]);
         // usleep(100001);
-        aggiorna_autostrada(game, autostrada, t_Area, pipeArea);
+        aggiorna_autostrada(game, autostrada, t_Area);
         //close(pipeArea[WRITE]);
-        // aggiorna_fiume(game, fiume, t_Area, pipeArea);
+        //aggiorna_fiume(game, fiume, t_Area, pipeArea);
         
         wrefresh(game);
     }
-    //_exit(EXIT_SUCCESS);
 }
 void aggiorna_fiume(WINDOW *game, WINDOW *fiume, Area a, int pipeTR[2])
 {
@@ -154,7 +170,7 @@ void aggiorna_fiume(WINDOW *game, WINDOW *fiume, Area a, int pipeTR[2])
     for (i = 0; i < N_CORSIE_FLUSSI; i++)   {
         
         a_aux = readAreaPipe(pipeTR[READ]);
-        if (t_Area.f.f[i].t.y[0] == a_aux.f.f[i].t.y[0] && t_Area.f.f[i].t.id == a_aux.f.f[i].t.id )
+        if (t_Area.f.f[i].t.id == a_aux.f.f[i].t.id )
         {
             t_Area.f.f[i].t = a_aux.f.f[i].t;
             stampa_tronco(game, t_Area.f.f[i].t);
@@ -241,14 +257,12 @@ _Bool check_corsia(Veicolo v){
     }
     return false;
 }
-void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a, int pipeStrada[2])
+void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a)
 {
     Area t_Area = a;
     int i, j, k;
     _Bool check = false;
 
-    //t_Area = readAreaPipe(pipeStrada[READ]);   
-   
     for (i = 0; i < N_VEICOLI; i++){        
         
         stampa_veicolo(game, t_Area.a.veicoli[i]);
@@ -290,14 +304,14 @@ void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a, int pipeStrada[2]
     }
     wbkgd(strada, COLOR_PAIR(2));
 }
-void gestione_strada(int pipeAS[2], int pipeVAux[2], Area area){
+/* void gestione_strada(int pipeAS[2], int pipeVAux[2], Area area){
     pid_t pidV[15];
     int pipeV[2];
     int i, cont = 0;
     Veicolo v;
 
     if (createPipe(pipeV, UNBLOCK_RW) != 1){
-        perror("Errore creazione pipe area");
+        perror("Errore creazione pipe area");           
         _exit(-1);
     }
 
@@ -306,92 +320,77 @@ void gestione_strada(int pipeAS[2], int pipeVAux[2], Area area){
             case -1:
                 perror("Errore fork veicolo");
                 _exit(-1);
-            case 0:
-                //writeVPipe(area.a.veicoli[i], pipeVAux[WRITE]); 
-                close(pipeV[READ]); 
-                close(pipeVAux[WRITE]);        
-                sposta_veicolo(pipeVAux[READ], pipeV[WRITE], area.a.veicoli[i]);
-                close(pipeV[WRITE]);
-                _exit(EXIT_SUCCESS);
-        }
-    }
-    close(pipeV[WRITE]);
-    close(pipeVAux[READ]);
-    while(1){
-        v = readVPipe(pipeV[READ]);  
+            case 0:    
+                sposta_veicolo( pipeVAux[READ],  pipeV[WRITE], area.a.veicoli[i]);
                
-        for (i = 0; i < N_VEICOLI; i++){
-            if (v.num_veicolo == area.a.veicoli[i].num_veicolo){
-                area.a.veicoli[i] = v; 
-                cont++;
-            }                                          
-        }
-        if(cont == 15){
-            for (i = 0; i < N_VEICOLI; i++){                
-                if(check_corsia(area.a.veicoli[i])){
-                    v = cambio_corsia(pipeVAux[WRITE], v, area); 
-                    area.a.veicoli[i] = v; 
+            default:
+                while(1){
+                    v = readVPipe(pipeV[READ]);  
+                    for (i = 0; i < N_VEICOLI; i++){
+                        if (v.num_veicolo == area.a.veicoli[i].num_veicolo){
+                            area.a.veicoli[i] = v; 
+                            cont++;
+                        }                                          
+                    }
+                    if(cont == 15){
+                        for (i = 0; i < N_VEICOLI; i++){                
+                            if(check_corsia(area.a.veicoli[i])){
+                                v = cambio_corsia(pipeV[WRITE], area.a.veicoli[i], area); 
+                                area.a.veicoli[i] = v; 
+                            }
+                        }
+                        cont = 0;     
+                        writeAreaPipe(area, pipeAS[WRITE]); 
+                    }
                 }
-            }
-            cont = 0;
-            usleep(10000);      
-            writeAreaPipe(area, pipeAS[WRITE]); 
+                exit(EXIT_SUCCESS);
         }
-          
     }
-}
+} */
 void  sposta_veicolo(int pipeVAuxR, int pipeVW, Veicolo v){
     Veicolo veicolo, aux = v;
     int corsia, cont = 0, i;
     veicolo = v;
+    Area area_aux;
     
-    while (true)
-    {
+    while (true) {
         if (veicolo.vr == 0){ // verso sn-dx
-            if(veicolo.x[1] == MAX_X - 2){
-                do
-                {
-                    aux = readVPipe(pipeVAuxR);
-                } while (aux.num_veicolo != veicolo.num_veicolo);             
-                
-                if(aux.num_veicolo == veicolo.num_veicolo)
-                    veicolo = aux;
-            } else if (veicolo.x[1] < (MAX_X - 1)){
+
+            if (veicolo.x[1] < (MAX_X - 1)){
                 veicolo.x[0]++;
                 veicolo.x[1]++;                    
             } 
         }else{ // verso dx-sn
-            if(veicolo.x[0] == MIN_X + 1){
-                do
-                {
-                    aux = readVPipe(pipeVAuxR);
-                } while (aux.num_veicolo != veicolo.num_veicolo);  
-                if(aux.num_veicolo == veicolo.num_veicolo)
-                    veicolo = aux;
-            } else
-            if (veicolo.x[0] > MIN_X + 1 )
-            {
+            
+
+            if (veicolo.x[0] > MIN_X + 1 ) {
                 veicolo.x[0]--;
                 veicolo.x[1]--;
             }
         } 
         usleep(100000);
-        writeVPipe(veicolo, pipeVW);           
+        writeVPipe(veicolo, pipeVW); 
+
+     /*    aux = readVPipe(pipeVAuxR);
+        veicolo = aux;
+            */
+                
     }
+    exit(EXIT_SUCCESS);
 }
-Veicolo cambio_corsia(int pipeVW, Veicolo v, Area a){
+
+Veicolo cambio_corsia(int pipeVAuxW, Veicolo v, Area a){
     Veicolo veicolo;
-    int corsia, cont = 0, i;
+    int corsia, cont = 0, index;
     veicolo = v;
+    /* index = veicolo.num_veicolo;
+    veicolo.num_veicolo = 16; */
 
     do{
         corsia = 1 + rand() % 3;
     } while (check_coordinata(corsia, a, veicolo));
-
         
     if (veicolo.vr == 0){ // verso sn-dx
-        
-
         if ((veicolo.corsia == 1) || (veicolo.corsia == 3))
         {
             if (corsia == 1 || corsia == 3){
@@ -410,9 +409,7 @@ Veicolo cambio_corsia(int pipeVW, Veicolo v, Area a){
                     veicolo.y[0] = 16;
                     veicolo.y[1] = 17;
                 }
-            }
-            else
-            {                        
+            }else{                        
                 veicolo.x[1] = MAX_X - 1;
                 if (veicolo.tipo == 'a')
                     veicolo.x[0] = veicolo.x[1] - L_RANA;
@@ -421,7 +418,6 @@ Veicolo cambio_corsia(int pipeVW, Veicolo v, Area a){
                 veicolo.y[0] = 18;
                 veicolo.y[1] = 19;
                 veicolo.vr = 1;
-                veicolo = cambio_sprite(veicolo);
             }
         } else{
             if (corsia == 2)
@@ -451,14 +447,9 @@ Veicolo cambio_corsia(int pipeVW, Veicolo v, Area a){
                     veicolo.y[1] = 17;
                 }
                 veicolo.vr = 1;
-                veicolo = cambio_sprite(veicolo);
             }
-        }
-        
-        
-    }
-    else
-    { // verso dx-sn
+        }        
+    } else { // verso dx-sn
 
         if ((veicolo.corsia == 1) || (veicolo.corsia == 3))
         {
@@ -490,7 +481,6 @@ Veicolo cambio_corsia(int pipeVW, Veicolo v, Area a){
                 veicolo.y[0] = 18;
                 veicolo.y[1] = 19;
                 veicolo.vr = 0;
-                veicolo = cambio_sprite(veicolo);
             }
         } else {
             if (corsia == 2){
@@ -515,29 +505,24 @@ Veicolo cambio_corsia(int pipeVW, Veicolo v, Area a){
                     veicolo.y[1] = 17;
                 }
                 veicolo.vr = 0;
-                veicolo = cambio_sprite(veicolo);
             }
         }
         
         
     } 
     veicolo.corsia = corsia;    
-    usleep(125000);
-    writeVPipe(veicolo, pipeVW);
+    //usleep(125000);
+    writeVPipe(veicolo, pipeVAuxW);
     return veicolo;
 }
 _Bool check_coordinata(int corsia, Area strada, Veicolo v){
     int i, j, t_x;
 
-    if (v.vr == 0)
-    {
-        if ((v.corsia == 2 && corsia != 2) || ((v.corsia == 1 || v.corsia == 3) && corsia == 2))
-        {
+    if (v.vr == 0){
+        if ((v.corsia == 2 && corsia != 2) || ((v.corsia == 1 || v.corsia == 3) && corsia == 2)) {
             t_x = MIN_X + 1;
-            for (i = 0; i < N_VEICOLI; i++)
-            {
-                if (strada.a.veicoli[i].corsia == corsia)
-                {
+            for (i = 0; i < N_VEICOLI; i++){
+                if (strada.a.veicoli[i].corsia == corsia){
                     if (strada.a.veicoli[i].x[1] > t_x)
                         t_x = strada.a.veicoli[i].x[1];
                 }
@@ -561,11 +546,8 @@ _Bool check_coordinata(int corsia, Area strada, Veicolo v){
             else
                 return false;
         }
-    }
-    else
-    {
-        if ((v.corsia == 2 && corsia != 2) || ((v.corsia == 1 || v.corsia == 3) && corsia == 2))
-        {
+    }else{
+        if ((v.corsia == 2 && corsia != 2) || ((v.corsia == 1 || v.corsia == 3) && corsia == 2)){
 
             t_x = MAX_X - 1;
             for (i = 0; i < N_VEICOLI; i++)
@@ -580,14 +562,11 @@ _Bool check_coordinata(int corsia, Area strada, Veicolo v){
                 return true;
             else
                 return false;
-        }
-        else
-        {
+        }else {
             t_x = MIN_X + 1;
             for (i = 0; i < N_VEICOLI; i++)
             {
-                if (strada.a.veicoli[i].corsia == corsia)
-                {
+                if (strada.a.veicoli[i].corsia == corsia) {
                     if (strada.a.veicoli[i].x[1] > t_x)
                         t_x = strada.a.veicoli[i].x[1];
                 }
@@ -599,13 +578,11 @@ _Bool check_coordinata(int corsia, Area strada, Veicolo v){
         }
     }
 }
-void writeAreaPipe(Area area, int p_out)
-{
+void writeAreaPipe(Area area, int p_out){
     write(p_out, &area, sizeof(area));
 }
 
-Area readAreaPipe(int p_in)
-{
+Area readAreaPipe(int p_in){
     Area area;
     read(p_in, &area, sizeof(area));
     return area;

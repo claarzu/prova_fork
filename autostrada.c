@@ -1,83 +1,5 @@
 #include "autostrada.h"
 
-Veicolo sprite_veicolo(Veicolo v)
-{
-    int j, k;
-    char s_auto1[H_RANA][L_RANA + 1] = {
-        "|o--o\\",
-        "|o--o/"};
-    char s_auto2[H_RANA][L_RANA + 1] = {
-        "/o--o|",
-        "\\o--o|"};
-    char s_camion1[H_RANA][L_RANA + 4] = {
-        "|oo---o-\\",
-        "|oo---o-/"};
-    char s_camion2[H_RANA][L_RANA + 4] = {
-        "/-o---oo|",
-        "\\-o---oo|"};
-
-    v.sprite = (char **)malloc(sizeof(char *) * H_RANA);
-    for (j = 0; j < v.h; j++)
-    {
-        v.sprite[j] = (char *)malloc(sizeof(char) * v.l);
-        if (v.sprite[j] == NULL)
-            exit(-1);
-        for (k = 0; k < v.l; ++k)
-        {
-            if (v.vr == 0)
-            { // verso da sinistra a destra
-                if (v.tipo == 'a')
-                    v.sprite[j][k] = s_auto1[j][k];
-                else if (v.tipo == 'c')
-                    v.sprite[j][k] = s_camion1[j][k];
-            }
-            else
-            {
-                if (v.tipo == 'a')
-                    v.sprite[j][k] = s_auto2[j][k];
-                else if (v.tipo == 'c')
-                    v.sprite[j][k] = s_camion2[j][k];
-            }
-        }
-    }
-    return v;
-}
-
-Veicolo cambio_sprite(Veicolo v)
-{
-    int j, k;
-    char s_auto1[H_RANA][L_RANA + 1] = {
-        "|o--o\\",
-        "|o--o/"};
-    char s_auto2[H_RANA][L_RANA + 1] = {
-        "/o--o|",
-        "\\o--o|"};
-    char s_camion1[H_RANA][L_RANA + 4] = {
-        "|oo---o-\\",
-        "|oo---o-/"};
-    char s_camion2[H_RANA][L_RANA + 4] = {
-        "/-o---oo|",
-        "\\-o---oo|"};
-
-    for (j = 0; j < v.h; j++){
-        for (k = 0; k < v.l; ++k){
-            if (v.vr == 0){ // verso da sinistra a destra
-                if (v.tipo == 'a')
-                    v.sprite[j][k] = s_auto1[j][k];
-                else if (v.tipo == 'c')
-                    v.sprite[j][k] = s_camion1[j][k];
-            }
-            else
-            {
-                if (v.tipo == 'a')
-                    v.sprite[j][k] = s_auto2[j][k];
-                else if (v.tipo == 'c')
-                    v.sprite[j][k] = s_camion2[j][k];
-            }
-        }
-    }
-    return v;
-}
 
 Autostrada init_autostrada(WINDOW *autostrada)
 {
@@ -91,8 +13,7 @@ Autostrada init_autostrada(WINDOW *autostrada)
     a.h = H_STRADA;
     a.l = L_STRADA;
     a.autostrada = autostrada;
-    for (i = 0; i < N_VEICOLI; ++i)
-    {
+    for (i = 0; i < N_VEICOLI; ++i){
         if (i == 0)
         {
             if (verso_corsia == -1)
@@ -148,7 +69,7 @@ Autostrada init_autostrada(WINDOW *autostrada)
         }
         a.veicoli[i].x[0] = xi;
         a.veicoli[i].x[1] = xf;
-        a.veicoli[i] = sprite_veicolo(a.veicoli[i]);
+        //a.veicoli[i] = sprite_veicolo(a.veicoli[i]);
     }
     return a;
 }
@@ -157,6 +78,19 @@ void stampa_veicolo(WINDOW *game, Veicolo v)
 {
     int i, j;
     int y_row, x_column;
+    char s_auto1[H_RANA][L_RANA + 1] = {
+        "|o--o\\",
+        "|o--o/"};
+    char s_auto2[H_RANA][L_RANA + 1] = {
+        "/o--o|",
+        "\\o--o|"};
+    char s_camion1[H_RANA][L_RANA + 4] = {
+        "|oo---o-\\",
+        "|oo---o-/"};
+    char s_camion2[H_RANA][L_RANA + 4] = {
+        "/-o---oo|",
+        "\\-o---oo|"};
+
     init_pair(11, COLOR_RED, COLOR_GREY);    // colore fanali
     init_pair(8, COLOR_YELLOW, COLOR_GREY);  // colore fari
     init_pair(12, COLOR_BLACK, COLOR_LRED);  // colore auto
@@ -171,26 +105,82 @@ void stampa_veicolo(WINDOW *game, Veicolo v)
             if (v.tipo == 'a')
             {
                 wattron(game, COLOR_PAIR(12));
-                mvwprintw(game, y_row, x_column, "%c", v.sprite[i][j]);
-                wattroff(game, COLOR_PAIR(12));
+                if(v.vr == 0){
+                    mvwprintw(game, y_row, x_column, "%c", s_auto1[i][j]);
+                    if (s_auto1[i][j] == '|')
+                    {
+                        wattron(game, COLOR_PAIR(11));
+                        mvwprintw(game, y_row, x_column, "%c", '|');
+                        wattroff(game, COLOR_PAIR(11));
+                    }else if (s_auto1[i][j] == '\\' || s_auto1[i][j] == '/')
+                    {
+                        wattron(game, COLOR_PAIR(8));
+                        if(s_auto1[i][j] == '\\')
+                            mvwprintw(game, y_row, x_column, "%c", '\\');
+                        else if(s_auto1[i][j] == '/')
+                            mvwprintw(game, y_row, x_column, "%c", '/');
+                        wattroff(game, COLOR_PAIR(8));
+                    }
+                }                 
+                else{
+                    mvwprintw(game, y_row, x_column, "%c", s_auto2[i][j]);
+                    if (s_auto2[i][j] == '|')
+                    {
+                        wattron(game, COLOR_PAIR(11));
+                        mvwprintw(game, y_row, x_column, "%c", '|');
+                        wattroff(game, COLOR_PAIR(11));
+                    }else if (s_auto2[i][j] == '\\' || s_auto2[i][j] == '/')
+                    {
+                        wattron(game, COLOR_PAIR(8));
+                        if(s_auto2[i][j] == '\\')
+                            mvwprintw(game, y_row, x_column, "%c", '\\');
+                        else if(s_auto2[i][j] == '/')
+                            mvwprintw(game, y_row, x_column, "%c", '/');
+                        wattroff(game, COLOR_PAIR(8));
+                    }
+                }                    
+                wattroff(game, COLOR_PAIR(12));               
             }
             else
             {
                 wattron(game, COLOR_PAIR(10));
-                mvwprintw(game, y_row, x_column, "%c", v.sprite[i][j]);
+                if(v.vr == 0){
+                    mvwprintw(game, y_row, x_column, "%c", s_camion1[i][j]);
+                    if (s_camion1[i][j] == '|')
+                    {
+                        wattron(game, COLOR_PAIR(11));
+                        mvwprintw(game, y_row, x_column, "%c", '|');
+                        wattroff(game, COLOR_PAIR(11));
+                    }else if (s_camion1[i][j] == '\\' || s_camion1[i][j] == '/')
+                    {
+                        wattron(game, COLOR_PAIR(8));
+                        if(s_camion1[i][j] == '\\')
+                            mvwprintw(game, y_row, x_column, "%c", '\\');
+                        else if(s_camion1[i][j] == '/')
+                            mvwprintw(game, y_row, x_column, "%c", '/');
+                        wattroff(game, COLOR_PAIR(8));
+                    }
+
+                }                    
+                else{
+                    mvwprintw(game, y_row, x_column, "%c", s_camion2[i][j]);
+                    if (s_camion2[i][j] == '|')
+                    {
+                        wattron(game, COLOR_PAIR(11));
+                        mvwprintw(game, y_row, x_column, "%c", '|');
+                        wattroff(game, COLOR_PAIR(11));
+                    }else if (s_camion2[i][j] == '\\' || s_camion2[i][j] == '/')
+                    {
+                        wattron(game, COLOR_PAIR(8));
+                        if(s_camion2[i][j] == '\\')
+                            mvwprintw(game, y_row, x_column, "%c", '\\');
+                        else if(s_camion2[i][j] == '/')
+                            mvwprintw(game, y_row, x_column, "%c", '/');
+                        wattroff(game, COLOR_PAIR(8));
+                    }
+                }
+                    
                 wattroff(game, COLOR_PAIR(10));
-            }
-            if (v.sprite[i][j] == '|')
-            {
-                wattron(game, COLOR_PAIR(11));
-                mvwprintw(game, y_row, x_column, "%c", v.sprite[i][j]);
-                wattroff(game, COLOR_PAIR(11));
-            }
-            else if (v.sprite[i][j] == '\\' || v.sprite[i][j] == '/')
-            {
-                wattron(game, COLOR_PAIR(8));
-                mvwprintw(game, y_row, x_column, "%c", v.sprite[i][j]);
-                wattroff(game, COLOR_PAIR(8));
             }
             x_column++;
         }

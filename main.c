@@ -3,19 +3,19 @@
 _Bool menu_gioco();
 void stampa_intro();
 
-int main()
-{
+int main(){
     srand(time(NULL));
     WINDOW *game, *marciapiede, *autostrada, *prato, *fiume, *tane;
-    int kcode = -1, zona = 1, colore_tane;
-    int pipeA[2], pipeVAux[2];
+    int kcode = -1, zona = 1, colore_tane, cont = 0;
+    int pipeA[2], pipeVAux[2], pipeV[2];
     // pipe(pipeP);// Descrittori pipe
-    pid_t pidA[3]; // Pid processi figli
+    pid_t pidA[3], pidV[N_VEICOLI]; // Pid processi figli
     _Bool loop = true, go = true, gioca = false;
     Rana r;
     Area area;
     Tronco t_aux;
     int i, j;
+    Veicolo v; 
     Proiettile aux_p;
 
     initscr();   // Inizializza schermo
@@ -66,43 +66,51 @@ int main()
         stampa_veicoli(game, area.a);
         wrefresh(game);
 
-        /* if (createPipe(pipeT, UNBLOCK_W) != 1)
-        {
-            perror("Errore creazione pipe tronco");
-            _exit(-1);
-        } */
-        if (createPipe(pipeVAux, UNBLOCK_RW) != 1){
-            perror("Errore creazione pipe area");
-            _exit(-1);
-        }
-
-        if (createPipe(pipeA, UNBLOCK_RW) != 1){
-            perror("Errore creazione pipe area");
-            _exit(-1);
-        }
       
-        for (i = 0; i < N_CORSIE_FLUSSI; i++){
+        if (createPipe(pipeA, BLOCK) != 1){
+            perror("Errore creazione pipe area");
+            _exit(-1);
+        }
+         if (createPipe(pipeV, UNBLOCK_W) != 1){
+            perror("Errore creazione pipe area");           
+            _exit(-1);
+        }
+        if (createPipe(pipeVAux, UNBLOCK_R) != 1){
+            perror("Errore creazione pipe area");           
+            _exit(-1);
+        }
+        for (i = 0; i < N_VEICOLI; i++){
+            switch (pidV[i] = fork()){
+                case -1:
+                    perror("Errore fork veicolo");
+                    _exit(-1);
+                case 0:  
+                    close(pipeV[READ]);  
+                    sposta_veicolo(pipeVAux[READ],  pipeV[WRITE], area.a.veicoli[i]);
+                    _exit(EXIT_SUCCESS);   
+            }
+        }
+        close(pipeV[WRITE]); 
+        
+        aggiornaArea(game, fiume, autostrada, area, pipeV[READ], pipeVAux[WRITE]);
+            /* for (i = 0; i < N_CORSIE_FLUSSI; i++){
             switch (pidA[i] = fork()){
                 case -1:
                     perror("Errore fork tronco");
                     _exit(-1);
                 case 0:
-                    close(pipeA[READ]);
+                    //close(pipeA[READ]);
                     if(i == 0){
-                        gestione_strada(pipeA, pipeVAux, area);
+                       // gestione_strada(pipeA, pipeVAux, area);
                     }else if(i == 1){
-                        //gestione_fiume(pipeA, area);  
+                        gestione_fiume(pipeA, area);  
                     }else{
                         // Rana
-                    } 
-                    close(pipeA[WRITE]);
-                    close(pipeVAux[WRITE]);                   
+                    }                 
                     _exit(0);
             }
-        } 
-        close(pipeA[WRITE]);
-        aggiornaArea(game, fiume, autostrada, area, pipeA);
-        close(pipeA[READ]);
+        } */ 
+        
     }
 
     endwin();
@@ -149,8 +157,7 @@ void stampa_intro()
     sleep(2);
     delwin(splash_screen);
 }
-_Bool menu_gioco()
-{
+_Bool menu_gioco(){
     int c, columng = 21, columne = 17, rowg = 4, rowe = 4;
     _Bool selezione = true, gioca = true;
     char sprite_gioca[4][21] = {
@@ -165,7 +172,7 @@ _Bool menu_gioco()
         "( E | S | C | I )",
         " \\_/ \\_/ \\_/ \\_/ ",
     };
-    /**/
+    
     WINDOW *sfondo_screen, *gioca_screen, *esci_screen;
     sfondo_screen = newwin(27, 102, 0, 0);
     gioca_screen = subwin(sfondo_screen, 7, 23, 3, 42);
@@ -189,18 +196,14 @@ _Bool menu_gioco()
 
     stampa_sprite(gioca_screen, rowg, columng, sprite_gioca, 1, 1, 2);
     stampa_sprite(esci_screen, rowe, columne, sprite_esci, 1, 3, 2);
-
     mvwprintw(sfondo_screen, 23, 22, "Select using the arrow up or down, then press space to start.");
-
     wrefresh(gioca_screen);
     wrefresh(sfondo_screen);
     wrefresh(esci_screen);
 
-    while (selezione)
-    { // Gestione spostamento guardia
+    while (selezione) { // Gestione spostamento guardia
         c = getch();
-        switch (c)
-        {
+        switch (c){
         case KEY_UP:
             wattron(gioca_screen, COLOR_PAIR(1));
             box(gioca_screen, ACS_VLINE, ACS_HLINE);
@@ -226,15 +229,12 @@ _Bool menu_gioco()
         case 10: // tasto barra spaziatrice
             selezione = false;
 
-            if (gioca)
-            {
+            if (gioca) {
                 delwin(sfondo_screen);
                 delwin(gioca_screen);
                 delwin(esci_screen);
                 return gioca;
-            }
-            else
-            {
+            }else{
                 delwin(sfondo_screen);
                 delwin(gioca_screen);
                 delwin(esci_screen);
