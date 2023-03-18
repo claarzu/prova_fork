@@ -67,11 +67,11 @@ int main(){
         wrefresh(game);
 
 
-        if (createPipe(pipeV, UNBLOCK_W) != 1){
+        if (createPipe(pipeV, BLOCK) != 1){
             perror("Errore creazione pipe area");           
             _exit(-1);
         }
-        if (createPipe(pipeVAux, UNBLOCK_RW) != 1){
+        if (createPipe(pipeVAux, UNBLOCK_R) != 1){
             perror("Errore creazione pipe area");           
             _exit(-1);
         }
@@ -81,33 +81,16 @@ int main(){
                     perror("Errore fork veicolo");
                     _exit(-1);
                 case 0:  
-                    close(pipeV[READ]); 
-                    close(pipeVAux[WRITE]); 
+                  /*   close(pipeV[READ]); 
+                    close(pipeVAux[WRITE]); */
                     sposta_veicolo(pipeVAux[READ],  pipeV[WRITE], area.a.veicoli[i]);
                     _exit(EXIT_SUCCESS);   
             }
         }
-        close(pipeV[WRITE]); 
-        close(pipeVAux[READ]); 
+        /* close(pipeV[WRITE]); 
+        close(pipeVAux[READ]); */ 
         aggiornaArea(game, fiume, autostrada, area, pipeV[READ], pipeVAux[WRITE]);
-            /* for (i = 0; i < N_CORSIE_FLUSSI; i++){
-            switch (pidA[i] = fork()){
-                case -1:
-                    perror("Errore fork tronco");
-                    _exit(-1);
-                case 0:
-                    //close(pipeA[READ]);
-                    if(i == 0){
-                       // gestione_strada(pipeA, pipeVAux, area);
-                    }else if(i == 1){
-                        gestione_fiume(pipeA, area);  
-                    }else{
-                        // Rana
-                    }                 
-                    _exit(0);
-            }
-        } */ 
-        
+                   
     }
 
     endwin();

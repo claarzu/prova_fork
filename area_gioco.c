@@ -158,7 +158,8 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
         }
 
         while (check == false)
-        {
+        {   
+            usleep(10000);
             v = readVPipe(pipeVR);
             if (!check_id(N_VEICOLI, cont_v, v.num_veicolo)){
                 for (j = 0; j < N_VEICOLI; j++){
@@ -172,7 +173,9 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                     check = true;
             }
         }
-        
+        aggiorna_autostrada(game, autostrada, t_Area, pipeVAW);    
+        wrefresh(game);
+
         cont = 0;
         //se tutti i veicoli sono stati caricati
         if(check){
@@ -204,15 +207,12 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                     attron(COLOR_PAIR(2));
                     mvwprintw(game, 2, i+1, "%d", corsiaM[0][i]);
                     mvwprintw(game, 3, i+1, "%d", corsiaM[1][i]);
-                    
                     attroff(COLOR_PAIR(2));
                 }
                 attron(COLOR_PAIR(2));
                 mvwprintw(game, 4, 3, "%d", cont);
                 attroff(COLOR_PAIR(2));
                 
-                //wbkgd(autostrada, COLOR_PAIR(2));
-
                 if(cont == 1){
                     for (i = 0; i < N_VEICOLI; i++){  
                         if(t_Area.a.veicoli[i].num_veicolo == corsiaM[0][0]){
@@ -220,6 +220,7 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                             if(!check_coordinata(corsiaM[1][0],t_Area,v_aux)){
                                 v = cambio_corsia(pipeVAW, v_aux, t_Area, corsiaM[1][0]);
                                 t_Area.a.veicoli[i] = v;
+                                usleep(100000);
                                 writeVPipe(t_Area.a.veicoli[i], pipeVAW);
                             }
                         }               
@@ -233,6 +234,7 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                                 if(!check_coordinata(corsiaM[1][j],t_Area,v_aux)){
                                     v = cambio_corsia(pipeVAW, v_aux, t_Area, corsiaM[1][j]);
                                     t_Area.a.veicoli[i] = v;
+                                    usleep(50000);
                                     writeVPipe(t_Area.a.veicoli[i], pipeVAW);
                                 }
                             }                            
@@ -248,6 +250,7 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                                 if(!check_coordinata(corsiaM[1][j],t_Area,v_aux)){
                                     v = cambio_corsia(pipeVAW, v_aux, t_Area, corsiaM[1][j]);
                                     t_Area.a.veicoli[i] = v;
+                                    usleep(33333);
                                     writeVPipe(t_Area.a.veicoli[i], pipeVAW);
                                 }
                             } 
@@ -269,11 +272,12 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
         strada = t_Area.a;
         //close(pipeArea[WRITE]);
         // usleep(100001);
-        aggiorna_autostrada(game, autostrada, t_Area);        
+        aggiorna_autostrada(game, autostrada, t_Area, pipeVAW);        
         //close(pipeArea[WRITE]);
         //aggiorna_fiume(game, fiume, t_Area, pipeArea);        
         wrefresh(game);
     }
+    _exit(EXIT_SUCCESS);
 }
 void aggiorna_fiume(WINDOW *game, WINDOW *fiume, Area a, int pipeTR[2])
 {
@@ -371,7 +375,7 @@ _Bool check_corsia(Veicolo v){
     }
     return false;
 }
-void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a)
+void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a,int pipeVAW)
 {
     Area t_Area = a;
     int i, j, k;
@@ -466,7 +470,8 @@ void  sposta_veicolo(int pipeVAuxR, int pipeVW, Veicolo v){
     int corsia, i;
     veicolo = v;
     Autostrada strada;
-    
+    _Bool check = false;
+    //veicolo.num_veicolo = getpid();
     
     while (true) {
 
@@ -477,23 +482,36 @@ void  sposta_veicolo(int pipeVAuxR, int pipeVW, Veicolo v){
                 veicolo = strada.veicoli[i];
             
         } */
-        aux = readVPipe(pipeVAuxR);
-        if(aux.num_veicolo == veicolo.num_veicolo)
-            veicolo = aux;
+       
+        //usleep(100000);
+        
+        /* aux = readVPipe(pipeVAuxR);
+        if(aux.num_veicolo == veicolo.num_veicolo && aux.corsia != veicolo.corsia)
+            veicolo = aux; */
+        
         
         if (veicolo.vr == 0){ // verso sn-dx
-
+            
             if (veicolo.x[1] < (MAX_X - 1)){
                 veicolo.x[0]++;
                 veicolo.x[1]++;                    
-            } 
-        }else{ // verso dx-sn
+            } else {
+                aux = readVPipe(pipeVAuxR);
+                if(aux.num_veicolo == veicolo.num_veicolo)
+                    veicolo = aux;
+            }
+                
             
+        }else{ // verso dx-sn
 
             if (veicolo.x[0] > MIN_X + 1 ) {
                 veicolo.x[0]--;
                 veicolo.x[1]--;
-            }
+            } else {
+                aux = readVPipe(pipeVAuxR);
+                if(aux.num_veicolo == veicolo.num_veicolo)
+                    veicolo = aux;
+            } 
         } 
         usleep(100000);
         writeVPipe(veicolo, pipeVW);          

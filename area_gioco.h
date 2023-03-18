@@ -73,7 +73,7 @@ void writeAreaPipe(Area area, int p_out);
 Area readAreaPipe(int p_in);
 void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, int pipeVR, int pipeVAW);
 void aggiorna_fiume(WINDOW *game, WINDOW *fiume, Area a, int pipeTR[2]);
-void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a);
+void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a, int pipeVAW);
 void gestione_fiume(int pipeAF[2], Area area);
 void gestione_strada(int pipeAS[2], int pipeVAux[2], Area area);
 void sposta_veicolo(int pipeVAuxR, int pipeVW, Veicolo v);
