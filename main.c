@@ -71,7 +71,7 @@ int main(){
             perror("Errore creazione pipe area");           
             _exit(-1);
         }
-        if (createPipe(pipeVAux, UNBLOCK_R) != 1){
+        if (createPipe(pipeVAux, BLOCK) != 1){
             perror("Errore creazione pipe area");           
             _exit(-1);
         }
@@ -81,16 +81,16 @@ int main(){
                     perror("Errore fork veicolo");
                     _exit(-1);
                 case 0:  
-                  /*   close(pipeV[READ]); 
-                    close(pipeVAux[WRITE]); */
-                    sposta_veicolo(pipeVAux[READ],  pipeV[WRITE], area.a.veicoli[i]);
+                    close(pipeV[READ]); 
+                    close(pipeVAux[WRITE]);
+                    gestione_strada(pipeVAux[READ],  pipeV[WRITE], area.a.veicoli[i]);
                     _exit(EXIT_SUCCESS);   
             }
         }
-        /* close(pipeV[WRITE]); 
-        close(pipeVAux[READ]); */ 
+        close(pipeV[WRITE]); 
+        close(pipeVAux[READ]); 
         aggiornaArea(game, fiume, autostrada, area, pipeV[READ], pipeVAux[WRITE]);
-                   
+        wait(NULL);
     }
 
     endwin();
