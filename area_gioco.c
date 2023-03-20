@@ -142,7 +142,7 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
 {
     Area t_Area = area;
     Autostrada strada;
-    int i, j, cont = 0, cont_v[N_VEICOLI], corsiaM[2][3], corsia = 0, time_read;
+    int i, j, cont = 0, cont_v[N_VEICOLI], corsiaM[2][3], corsia = 0, time_read, time_write;
     _Bool check = false;
     Tronco t_aux;
     Veicolo v, v_aux;
@@ -161,28 +161,45 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
         }
 
         //usleep(1515350);
-        while (check == false)
+        while (check == false) // ciclo per ottenere tutti i veicoli da visualizzare
         {
-            if (v.num_veicolo == 0)
-                usleep(time_read);
-            else
-                usleep(time_read+v.num_veicolo);
-            
-            v = readVPipe(pipeVR);
-            if (!check_id(N_VEICOLI, cont_v, v.num_veicolo))
+            for (j = 0; j < N_VEICOLI; j++)
             {
-                for (j = 0; j < N_VEICOLI; j++)
-                {
-                    if (v.num_veicolo == t_Area.a.veicoli[j].num_veicolo)
-                    {
-                        cont_v[j] = v.num_veicolo;
-                        t_Area.a.veicoli[j] = v;
-                        cont++;
-                    }
+                /* if (t_Area.a.veicoli[j].num_veicolo == 1){
+                    time_write = 60000;
+                    usleep(time_write);
+                } else{
+                    time_write = time_read + 1;
+                    usleep(time_write);
                 }
-                if (cont == 15)
-                    check = true;
+                writeVPipe(t_Area.a.veicoli[j], pipeVAW);  */
+
+                if (v.num_veicolo == 0){
+                    time_read = 66666;
+                    usleep(time_read);
+                } else{
+                    time_read = time_read + 66666;
+                    usleep(time_read);
+                }
+                           
+                v = readVPipe(pipeVR);
+                if (!check_id(N_VEICOLI, cont_v, v.num_veicolo))
+                {
+                    for (j = 0; j < N_VEICOLI; j++)
+                    {
+                        if (v.num_veicolo == t_Area.a.veicoli[j].num_veicolo)
+                        {
+                            cont_v[j] = v.num_veicolo;
+                            t_Area.a.veicoli[j] = v;
+                            cont++;
+                        }
+                    }
+                    if (cont == 15)
+                        check = true;
+                }
             }
+            
+            
         }
 
         cont = 0;
@@ -472,29 +489,34 @@ void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a, int pipeVAW)
 void gestione_strada(int pipeVAuxR, int pipeVW, Veicolo v)
 {
     _Bool check = false;
-    int time;
+    int time_write, time_read;
     Veicolo aux;
     
 
     while (true)
     {
         if (v.num_veicolo == 1)
-            time = 100000 + v.num_veicolo;
+            time_write = 66665;
         else
-            time = 100000 + v.num_veicolo + 1;
+            time_write = 66665 + time_write;
             
-        if(check){
-            //usleep(1000+v.num_veicolo+1);
-            //aux = readVPipe(pipeVAuxR);
+        /* if(check){
+            if (v.num_veicolo == 1)
+                time_read = 60001;
+            else
+                time_read = time_write - 3;        
+        
+            usleep(time_read);
+            aux = readVPipe(pipeVAuxR);
             if (aux.num_veicolo == v.num_veicolo)
                 v = aux;
-        }
+        } */
             
         
         v = sposta_veicolo(pipeVAuxR, pipeVW, v);
         check = true;
 
-        usleep(time);
+        usleep(time_write);
         writeVPipe(v, pipeVW);
     }
     _exit(EXIT_SUCCESS);
