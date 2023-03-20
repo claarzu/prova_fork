@@ -479,7 +479,7 @@ void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a, int pipeVAW)
 void gestione_strada(int pipeVAuxR, int pipeVW, Veicolo v)
 {
     _Bool check = false;
-    int time_write, time_read, time_total = 1500500;
+    int time_write, time_read, time_total = 1500255;
     Veicolo aux;
     
 
