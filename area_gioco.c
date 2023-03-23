@@ -535,7 +535,7 @@ void gestione_strada(int pipeVAuxR, int pipeVW, Veicolo v)
     while (true)
     {
         if(check == true){
-            usleep(time_write);
+            usleep(valueR);
             aux = readVPipe(pipeVAuxR);
             //usleep(1000000);
             if (aux.num_veicolo == v.num_veicolo)
