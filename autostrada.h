@@ -13,6 +13,7 @@
 
  typedef struct{
     int num_veicolo;
+    pid_t pid;
     int x[2];
     int y[2];
     int l; // Lunghezza veicolo

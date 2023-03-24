@@ -80,7 +80,7 @@ int main(){
                 case -1:
                     perror("Errore fork veicolo");
                     _exit(-1);
-                case 0:  
+                case 0:
                     close(pipeV[READ]); 
                     close(pipeVAux[WRITE]);
                     gestione_strada(pipeVAux[READ],  pipeV[WRITE], area.a.veicoli[i]);

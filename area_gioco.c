@@ -140,7 +140,7 @@ _Bool check_id(int dim, int array[dim], int id)
 
 void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, int pipeVR, int pipeVAW)
 {
-    Area t_Area = area;
+    Area t_Area = area, tmp_a = area;
     Autostrada strada;
     int i, j, cont = 0, cont_v[N_VEICOLI], corsiaM[2][3], corsia = 0, time_read = 16666, time_write = 100, aux = 2;
     _Bool check = false;
@@ -151,6 +151,18 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
     while (1)
     {
         // aggiorna_autostrada(game, autostrada, t_Area, pipeVAW);
+         for (j = 0; j < N_VEICOLI; j++)
+            {
+               /*  if (t_Area.a.veicoli[j].num_veicolo == 1)
+                    usleep(time_write);
+                else{
+                    time_write += 100;
+                    usleep(time_write);
+                 }*/
+                writeVPipe(t_Area.a.veicoli[j], pipeVAW); 
+            
+            }   
+        
         v.num_veicolo = 0;
         cont = 0;
         check = false;
@@ -171,8 +183,8 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                 valueR += 10;  
             }
 
-            time_read = 16666 + valueR;            
-            usleep(time_read);
+            time_read = 16666 + valueR;    
+            // usleep(time_read);
             v = readVPipe(pipeVR);
             if (!check_id(N_VEICOLI, cont_v, v.num_veicolo))
             {
@@ -194,7 +206,8 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
         // se tutti i veicoli sono stati caricati
         if (check)
         {
-            for (i = 0; i < N_VEICOLI; i++)
+            aggiorna_autostrada(game, autostrada, t_Area, pipeVAW); 
+            /* for (i = 0; i < N_VEICOLI; i++)
             {
                 if (check_corsia(t_Area.a.veicoli[i]))
                 {
@@ -216,9 +229,9 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                     
                 }
                 
-            }
+            } */
             
-            /* cont = 0;
+            cont = 0;
             for (i = 0; i < N_VEICOLI; i++)
             {
                 if (check_corsia(t_Area.a.veicoli[i]))
@@ -263,6 +276,8 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                         if (t_Area.a.veicoli[i].num_veicolo == corsiaM[0][0])
                         {
                             v_aux = t_Area.a.veicoli[i];
+                            
+                            
                             if (!check_coordinata(corsiaM[1][0], t_Area, v_aux))
                             {
                                 v = cambio_corsia(pipeVAW, v_aux, t_Area, corsiaM[1][0]);
@@ -319,7 +334,7 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
 
                 // aggiorna_autostrada(game, autostrada, t_Area);
                 // wrefresh(game);
-            } */
+            }
 
             // usleep(50000);
 
@@ -329,7 +344,10 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
             
             time_write = 100;
 
-            for (j = 0; j < N_VEICOLI; j++)
+            
+               
+        }
+       /*  for (j = 0; j < N_VEICOLI; j++)
             {
                 if (t_Area.a.veicoli[j].num_veicolo == 1)
                     usleep(time_write);
@@ -340,10 +358,7 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
                 writeVPipe(t_Area.a.veicoli[j], pipeVAW); 
             
             }   
-            aggiorna_autostrada(game, autostrada, t_Area, pipeVAW);     
-        }
-
-        
+         */
         strada = t_Area.a;
         // close(pipeArea[WRITE]);
         // usleep(100001);
@@ -355,7 +370,10 @@ void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, in
         //     usleep(1000+t_Area.a.veicoli[i].num_veicolo);
         //     writeVPipe(t_Area.a.veicoli[i], pipeVAW);
         // }
+        sleep(1);
     }
+
+    
     _exit(EXIT_SUCCESS);
 }
 void aggiorna_fiume(WINDOW *game, WINDOW *fiume, Area a, int pipeTR[2])
@@ -493,16 +511,15 @@ void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a, int pipeVAW)
                 }
             }
         }
-        else if (t_Area.a.veicoli[i].vr == 1 && t_Area.a.veicoli[i].num_veicolo == a.a.veicoli[i].num_veicolo)
-        {
-            if (t_Area.a.veicoli[i].x[0] > (MIN_X + 2))
+        else if (t_Area.a.veicoli[i].vr == 1 && t_Area.a.veicoli[i].num_veicolo == a.a.veicoli[i].num_veicolo){ // dx_sn
+            if (t_Area.a.veicoli[i].x[0] > (MIN_X + 1))
             {
                 attron(COLOR_PAIR(2));
                 mvwaddch(game, t_Area.a.veicoli[i].y[0], t_Area.a.veicoli[i].x[1] + 1, ' ');
                 mvwaddch(game, t_Area.a.veicoli[i].y[1], t_Area.a.veicoli[i].x[1] + 1, ' ');
                 attroff(COLOR_PAIR(2));
             }
-            else if (t_Area.a.veicoli[i].x[0] == (MIN_X + 2))
+            else if (t_Area.a.veicoli[i].x[0] == (MIN_X + 1))
             {
                 for (j = t_Area.a.veicoli[i].x[0]; j <= (t_Area.a.veicoli[i].x[0] + t_Area.a.veicoli[i].l); j++)
                 {
@@ -523,6 +540,7 @@ void gestione_strada(int pipeVAuxR, int pipeVW, Veicolo v)
     _Bool check = false;
     int time_write, time_read, i, valueR = 105, valueW = 100;
     Veicolo aux;
+    v.pid = getpid();
 
     for (i = 1; i <= v.num_veicolo; i++){
         if (v.num_veicolo > 1){
@@ -534,17 +552,20 @@ void gestione_strada(int pipeVAuxR, int pipeVW, Veicolo v)
     time_write = 16665 + valueW;
     while (true)
     {
-        if(check == true){
-            usleep(valueR);
+       /*  if(check == true){
+            time_write = time_read + valueW + 2625 + 16665;
+            usleep(time_read);
             aux = readVPipe(pipeVAuxR);
-            //usleep(1000000);
+            time_write = 16665 + valueW + (12000-valueR);
             if (aux.num_veicolo == v.num_veicolo)
                 v = aux; 
-        }
-
+        } */
+        aux = readVPipe(pipeVAuxR);
+        v = aux;
         v = sposta_veicolo(pipeVAuxR, pipeVW, v);
-        usleep(time_write);
+        //usleep(time_write);
         writeVPipe(v, pipeVW);
+        //pause();
         check = true;
     }
     _exit(EXIT_SUCCESS);
