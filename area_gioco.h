@@ -71,15 +71,15 @@ void stampa_tane(WINDOW *w, Tane t);
 void gestione_area(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, int pipeAreaW, int pipeT[2]);
 void writeAreaPipe(Area area, int p_out);
 Area readAreaPipe(int p_in);
-void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, int pipeVR, int pipeVAW);
+void aggiornaArea(WINDOW *game, WINDOW *fiume, WINDOW *autostrada, Area area, int pipeVR, int pipeVAW, int pid[15]);
 void aggiorna_fiume(WINDOW *game, WINDOW *fiume, Area a, int pipeTR[2]);
 void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a, int pipeVAW);
 void gestione_fiume(int pipeAF[2], Area area);
 void gestione_strada(int pipeVAuxR, int pipeVW, Veicolo v);
 Veicolo sposta_veicolo(int pipeVAuxR, int pipeVW, Veicolo v);
 _Bool check_id(int dim, int array[dim], int id);
-_Bool check_coordinata(int corsia, Area strada, Veicolo v);
+_Bool check_Inserimento_corsia(int corsia, Area strada, Veicolo v);
 Veicolo cambio_corsia(int pipeVAuxW, Veicolo v, Area a, int corsia);
-_Bool check_corsia(Veicolo v);
+_Bool check_fine_corsia(Veicolo v);
 
 #endif // VERSIONE_PROCESSI_AREA_GIOCO_H
