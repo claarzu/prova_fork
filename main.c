@@ -90,7 +90,7 @@ int main(){
         close(pipeV[WRITE]); 
         close(pipeVAux[READ]); 
         aggiornaArea(game, fiume, autostrada, area, pipeV[READ], pipeVAux[WRITE], pidV);
-        //wait(NULL);
+        wait(NULL);
     }
 
     endwin();

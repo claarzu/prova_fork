@@ -76,7 +76,7 @@ void aggiorna_fiume(WINDOW *game, WINDOW *fiume, Area a, int pipeTR[2]);
 void aggiorna_autostrada(WINDOW *game, WINDOW *strada, Area a, int pipeVAW);
 void gestione_fiume(int pipeAF[2], Area area);
 void gestione_strada(int pipeVAuxR, int pipeVW, Veicolo v);
-Veicolo sposta_veicolo(int pipeVAuxR, int pipeVW, Veicolo v);
+Veicolo sposta_veicolo(Veicolo v);
 _Bool check_id(int dim, int array[dim], int id);
 _Bool check_Inserimento_corsia(int corsia, Area strada, Veicolo v);
 Veicolo cambio_corsia(int pipeVAuxW, Veicolo v, Area a, int corsia);
