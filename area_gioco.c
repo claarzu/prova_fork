@@ -460,15 +460,11 @@ void gestione_strada(int pipeVAuxR, int pipeVW, Veicolo v)
             check = true; 
         else
             check = false;
-
-
-        if (check)
+        do
         {
-            aux = readVPipe(pipeVAuxR);
-            if(aux.num_veicolo == v.num_veicolo)
-                v = aux;
-        }       
-        
+            aux = readVPipe(pipeVAuxR);                 
+        }  while(aux.num_veicolo == v.num_veicolo);    
+        v = aux;
         v = sposta_veicolo(v);
         //usleep(66665);         
         writeVPipe(v, pipeVW);        
